@@ -1,20 +1,36 @@
 <template>
-    <ul class="results" v-if="hasData">
-      <li v-for="(item, outcome) in data">
-        <div class="content-item results_content">
-          <div class="body">
-            <h4 class="title">{{ outcome }}</h4>
-            <small v-show="!filters.sector">{{ item.sector }}</small>
-            <ul v-for="(value, indicator) in item.indicators" class="indicators">
-               <li class="indicator clearfix" :style="{borderColor: sectorcolour(item.sector)}">
-                  <div class="indicator-achievement"> {{ value }}</div>
-                  <div class="indicator-name"> {{ indicator }} </div>
-               </li>
-               </ul>
-          </div>
+  <transition-group
+      tag="ul"
+      class="results"
+      name="viz"
+  >
+    <li
+        v-for="(item, outcome) in data"
+        :key="`outcome:${outcome}`"
+    >
+      <div class="content-item results_content">
+        <div class="body">
+          <h4 class="title">{{ outcome }}</h4>
+          <small v-show="!filters.sector">{{ item.sector }}</small>
+          <transition-group
+              tag="ul"
+              class="indicators"
+              name="viz"
+          >
+            <li
+                v-for="(value, indicator) in item.indicators"
+                class="indicator clearfix"
+                :style="{borderColor: sectorcolour(item.sector)}"
+                :key="`indicator:${indicator}`"
+            >
+              <div class="indicator-achievement"> {{ value }}</div>
+              <div class="indicator-name"> {{ indicator }} </div>
+            </li>
+          </transition-group>
         </div>
-      </li>
-    </ul>
+      </div>
+    </li>
+  </transition-group>
 </template>
 
 <style lang="less">
@@ -67,6 +83,8 @@ export default Vue.extend({
 
   computed: {
     data() {
+      if (!this.hasData) return {};
+
       const dataset = this.filter(this.dataset);
       const results = {};
 
@@ -101,7 +119,6 @@ export default Vue.extend({
       return results;
     },
   },
-
 });
 
 </script>

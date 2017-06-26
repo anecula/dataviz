@@ -1,3 +1,24 @@
+<style lang="less">
+@duration: .5s;
+
+.viz-enter-active, .viz-leave-active {
+  transition: opacity @duration;
+}
+.viz-enter, .viz-leave-to {
+  opacity: 0;
+}
+.viz-leave, .viz-enter-to {
+  opacity: 1;
+}
+/*
+.viz-move {
+  transition: transform @duration;
+}
+.viz-leave-active {
+  position: absolute;
+}*/
+</style>
+
 <script>
 import * as d3 from 'd3';
 import {FILTERS, Q} from '../../globals.js'
