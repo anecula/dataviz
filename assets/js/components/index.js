@@ -20,9 +20,4 @@ export {default as Results} from './Results';
 export {default as Programmes} from './Programmes';
 export {default as Sidebar} from './Sidebar';
 export {default as News} from './News';
-<<<<<<< 557a4f9aac6808b125c2ae47690c72e3743cbe75
-export {default as ProjectsOverview} from './ProjectsOverview';
-
 export {default as ProjectsProjects} from './ProjectsProjects';
-=======
->>>>>>> re-rename homepage / overviews
