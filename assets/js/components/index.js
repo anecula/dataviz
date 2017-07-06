@@ -20,3 +20,5 @@ export {default as Programmes} from './Programmes';
 export {default as Sidebar} from './Sidebar';
 export {default as News} from './News';
 export {default as ProjectsOverview} from './ProjectsOverview';
+
+export {default as ProjectsProjects} from './ProjectsProjects';
