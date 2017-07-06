@@ -13,22 +13,9 @@
             <ul class="programme-list" :class="[{ active : filters.beneficiary }]">
                <li v-for="programme in beneficiary.programmes"
                    class="programme-item">
-                 <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code" @click="getProjects($event)"> {{ programme.programme_name }} </div>
-                   <div v-if="posts"  class="programme-sublist-wrapper">
-                   <small key="results.name"  class="programme-sublist-header">{{ programme.sector }}</small>
-                      <ul class="programme-sublist">
-                       <!--     <li v-if="posts" class="programme-sublist-item"
-                              v-for="results of programme.projects.results"
-                           >
-                              {{ results.name }}
-                           </li> -->
-                      </ul>
-                      <div class="show-more small muted align-center">
-                              &ndash;
-                              <button @click="showMore($event)" :next="programme.next" type="button" class="btn-link">show 10 more results</button>
-                              &ndash;
-                      </div>
-                  </div>
+                 <div class="programme-item-header" @click="ajax($event)" :country="beneficiary.id" :id="programme.programme_code"> {{ programme.programme_name }} </div>
+                  <projects :doajax="doajax" :sector="programme.sector" :country="beneficiary.id" :id="programme.programme_code"/>
+
                </li>
             </ul>
           </div>
@@ -142,14 +129,14 @@
     margin-right: .5rem;
   }
 
-  div.small,
-  .programme-sublist-header {
-    display: none;
-  }
-  .programme-item.active small,
-  .programme-item.active div.small {
-    display: block;
-  }
+  // div.small,
+  // .programme-sublist-header {
+  //   display: none;
+  // }
+  // .programme-item.active small,
+  // .programme-item.active div.small {
+  //   display: block;
+  // }
 
 }
 </style>
@@ -162,19 +149,22 @@ import axios from 'axios';
 
 import BaseMixin from './mixins/Base';
 import WithCountriesMixin, {COUNTRIES, get_flag_name} from './mixins/WithCountries';
+import Projects from './includes/Projects'
 
 export default Vue.extend({
   mixins: [
     BaseMixin, WithCountriesMixin,
   ],
 
+  components: {
+    'projects': Projects,
+  },
 
- data() {
+  data() {
     return {
-      posts: [],
-      errors: []
-      }
-    },
+      doajax: []
+    }
+  },
 
   computed: {
     projectcount() {
@@ -260,81 +250,11 @@ export default Vue.extend({
 
   methods: {
 
-    getProjects(e) {
+    ajax(e) {
       let programme_code = e.target.getAttribute('id');
       let country_code = e.target.getAttribute('country');
-      let target = e.target.parentNode.querySelector('.programme-sublist');
-      let test = e.target.parentNode.querySelectorAll('.programme-sublist li')
-      let active_item = e.target.parentNode;
-      if(active_item.classList.contains('active')){
-        active_item.classList.remove('active')
-      }
-      else{
-        active_item.classList.add('active')
-      }
-
-     if(test.length == 0){
-      axios.get(`/api/projects/?beneficiary=${country_code}&programme=${programme_code}`)
-      .then(response => {
-        this.posts = response.data
-        for (let d of this.data.beneficiaries){
-            for (let b of d.programmes) {
-              if(b.programme_code == programme_code )
-                  {
-                    b.next = this.posts.next
-                    for (let r of this.posts.results){
-                    var node = document.createElement("LI");
-                    var textnode = document.createTextNode(r.name);
-                    node.appendChild(textnode);
-                    target.appendChild(node);
-                    }
-                  }
-             }
-        }
-
-      })
-      .catch(e => {
-        this.errors.push(e)
-      });
-
-      }
-
-      else {
-          test.forEach(function(item, i){
-            target.removeChild(item)
-          });
-
-
-      }
-
+      this.doajax = [country_code, programme_code]
     },
-
-    showMore(e) {
-      let next = e.target.getAttribute('next');
-      let target = e.target.parentNode.parentNode.parentNode.querySelector('.programme-sublist');
-      let nextNode = target.parentNode.querySelector('.show-more')
-      if(this.posts.next){
-      axios.get(""+next+"").then(response => {
-        this.posts = response.data
-        for (let r of this.posts.results){
-            var node = document.createElement("LI");
-            var textnode = document.createTextNode(r.name);
-            node.appendChild(textnode);
-            target.appendChild(node);
-          }
-          e.target.setAttribute('next',this.posts.next)
-          if(this.posts.next==null){
-            target.parentNode.removeChild(nextNode);
-          }
-      })
-        .catch(e => {
-          this.errors.push(e)
-        });
-      }
-
-
-    },
-
 
     toggleContent(e) {
       //remove comment if you want to toggle between elements

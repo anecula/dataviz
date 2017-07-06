@@ -1,22 +1,25 @@
-import Vue from 'vue';
+/*
+ * WARNING: this file is parsed in python.
+ *          if you modify or rename it, make sure
+ *          embedding code still works.
+ */
 
-import BaseMixin from './components/mixins/Base';
-import * as components from './components/index';
+import {default as Root} from './components/Root';
+import * as components from './components';
 
 
-const Base = Vue.extend({
-  mixins: [BaseMixin],
+const Base = Root.extend({
   components: {
     globalfilters: components.GlobalFilters,
   },
 });
 
 
-export const Homepage = Base.extend({
-  name: 'Homepage',
+export const Index = Base.extend({
+  name: 'Index',
 
   components: {
-    overview: components.Homepage,
+    overview: components.Overview,
   },
 });
 
@@ -36,7 +39,7 @@ export const Grants = Viz.extend({
     sectors: components.Sectors,
     xmap: components.AllocationMap,
     beneficiaries: components.Beneficiaries,
-    overview: components.AllocationOverview,
+    overview: components.Summary,
     programmes: components.Programmes,
     results: components.Results,
   },
@@ -50,7 +53,8 @@ export const Projects = Viz.extend({
     sectors: components.ProjectsSectors,
     xmap: components.ProjectsMap,
     beneficiaries: components.ProjectsBeneficiaries,
-    overview: components.ProjectsOverview,
+    overview: components.ProjectsSummary,
+    programmes: components.Programmes,
     projects: components.ProjectsProjects,
     news: components.News,
   },
