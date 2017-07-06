@@ -11,19 +11,18 @@
                 <small>({{ beneficiary.programmes.length }} programmes)</small>
             </div>
             <ul class="programme-list" :class="[{ active : filters.beneficiary }]">
-               <li v-for="programme in beneficiary.programmes" class="programme-item">
-                 <a class="programme-sublist-item" target="_blank" v-bind:href=programme.programme_url> {{ programme.programme_name }} </a>
-                 <!--<div class="programme-sublist-wrapper">
+               <li v-for="programme in beneficiary.programmes" class="programme-item active">
+                 <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code"  @click="getProjects($event)"> {{ programme.programme_name }} </div>
+                 <div class="programme-sublist-wrapper">
                    <small class="programme-sublist-header">{{ programme.sector }}</small>
-                   <ul class="programme-sublist">
+                   <ul v-if="posts" class="programme-sublist">
                      <li class="programme-sublist-item"
-                         v-for="n in programme.projectcount"
-                         v-if="n <= 10"
+                        v-for="results of programme.projects.results"
                      >
-                       Lorem ipsum {{ n }}
+                        {{ results.name }}
                      </li>
                    </ul>
-                 </div>-->
+                 </div>
                </li>
             </ul>
           </div>
@@ -162,6 +161,7 @@
 
 import Vue from 'vue';
 import * as d3 from 'd3';
+import axios from 'axios';
 
 import BaseMixin from './mixins/Base';
 import WithCountriesMixin, {COUNTRIES, get_flag_name} from './mixins/WithCountries';
@@ -170,6 +170,12 @@ export default Vue.extend({
   mixins: [
     BaseMixin, WithCountriesMixin,
   ],
+
+
+  data: () => ({
+    posts: [],
+    errors: []
+  }),
 
   computed: {
     projectcount() {
@@ -211,6 +217,7 @@ export default Vue.extend({
               programme_name: programmes[p].name,
               programme_url: programmes[p].url,
               projectcount: 0,
+              projects : [],
             };
 
           programme.projectcount += projectcount;
@@ -248,6 +255,35 @@ export default Vue.extend({
   },
 
   methods: {
+
+    getProjects(e) {
+      let programme_code = e.target.getAttribute('id');
+      let country_code = e.target.getAttribute('country');
+
+      axios.get(`/api/projects/?beneficiary=${country_code}&programme=${programme_code}`)
+      .then(response => {
+        // JSON responses are automatically parsed.
+        this.posts = response.data
+      })
+      .catch(e => {
+        this.errors.push(e)
+      });
+
+      // console.log(this.posts);
+
+
+    for (let d of this.data.beneficiaries){
+        for (let b of d.programmes) {
+          if(b.programme_code == programme_code )
+              b.projects = this.posts
+         }
+    }
+
+    console.log(this.data.beneficiaries)
+
+
+    },
+
     toggleContent(e) {
       //remove comment if you want to toggle between elements
 
