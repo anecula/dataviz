@@ -11,18 +11,29 @@
                 <small>({{ beneficiary.programmes.length }} programmes)</small>
             </div>
             <ul class="programme-list" :class="[{ active : filters.beneficiary }]">
-               <li v-for="programme in beneficiary.programmes" class="programme-item active">
-                 <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code"  @click="getProjects($event)"> {{ programme.programme_name }} </div>
-                 <div class="programme-sublist-wrapper">
-                   <small class="programme-sublist-header">{{ programme.sector }}</small>
-                   <ul v-if="posts" class="programme-sublist">
-                     <li class="programme-sublist-item"
-                        v-for="results of programme.projects.results"
-                     >
-                        {{ results.name }}
-                     </li>
-                   </ul>
-                 </div>
+               <li v-for="programme in beneficiary.programmes"
+                   class="programme-item">
+                 <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code" @click="getProjects($event)"> {{ programme.programme_name }} </div>
+                   <div v-if="posts"  class="programme-sublist-wrapper">
+                  <transition name="fade">
+                      <ul v-if="showProjects(programme.programme_code,beneficiary.id)" class="programme-sublist">
+                          <li> <small key="results.name"  class="programme-sublist-header">{{ programme.sector }}</small></li>
+                           <li v-if="posts" class="programme-sublist-item"
+                              v-for="results of programme.projects.results"
+                           >
+                              {{ results.name }}
+                           </li>
+                           <li>
+                             <div key="results.name"  class="small muted align-center">
+                              &ndash;
+                              <button type="button" class="btn-link">show 10 more results</button>
+                              &ndash;
+                            </div>
+                          </li>
+
+                      </ul>
+                  </transition>
+                  </div>
                </li>
             </ul>
           </div>
@@ -48,17 +59,39 @@
     color: #444;
   }
 
-  .programme-sublist-wrapper {
-    display: none;
-  }
 
-  .active .programme-sublist-wrapper     {
-    display: block;
-  }
+
+    &.fade-enter-active,
+    &.fade-leave-active {
+      transition: opacity .5s;
+    }
+
+    &.fade-enter,
+    &.fade-leave-to {
+      opacity: 0;
+    }
+    &.fade-enter-to,
+    &.fade-leave {
+      opacity: 1;
+    }
+
+  // .programme-sublist-wrapper {
+  //   display: none;
+  // }
+
+  // li.active .programme-sublist-wrapper  {
+  //   display: block;
+  // }
 
   .programme-sublist {
     padding-left: 0;
-    margin-left: 2rem
+    margin-left: 2rem;
+    li {
+    &:first-of-type,
+    &:last-of-type {
+      margin-left: -2rem;
+    }
+    }
   }
 
   .programme-sublist-item {
@@ -172,10 +205,12 @@ export default Vue.extend({
   ],
 
 
-  data: () => ({
-    posts: [],
-    errors: []
-  }),
+ data() {
+    return {
+      posts: [],
+      errors: []
+      }
+    },
 
   computed: {
     projectcount() {
@@ -188,11 +223,16 @@ export default Vue.extend({
       return data.projectcount;
     },
 
+
+    isActive() {
+      let active = {};
+      return active
+    },
+
     data() {
       const dataset = this.filter(this.dataset);
       const beneficiaries = {};
       let totalcount = 0;
-
       for (const d of dataset) {
         const programmes = d.programmes;
 
@@ -220,6 +260,8 @@ export default Vue.extend({
               projects : [],
             };
 
+          this.isActive[p]= false
+          // this.isActive.push(beneficiary.programme);
           programme.projectcount += projectcount;
           beneficiary._projectcount += projectcount;
           totalcount += projectcount;
@@ -237,6 +279,9 @@ export default Vue.extend({
                 id: b,
                 programmes: [],
               };
+        let benef = beneficiary.id
+        this.isActive[benef] = false;
+
         out.beneficiaries.push(beneficiary);
         for (const p in programmes) {
           const value = programmes[p];
@@ -264,25 +309,36 @@ export default Vue.extend({
       .then(response => {
         // JSON responses are automatically parsed.
         this.posts = response.data
+        for (let d of this.data.beneficiaries){
+            for (let b of d.programmes) {
+              if(b.programme_code == programme_code )
+                  b.projects = this.posts
+             }
+        }
+
       })
       .catch(e => {
         this.errors.push(e)
       });
 
-      // console.log(this.posts);
-
-
-    for (let d of this.data.beneficiaries){
-        for (let b of d.programmes) {
-          if(b.programme_code == programme_code )
-              b.projects = this.posts
-         }
-    }
-
-    console.log(this.data.beneficiaries)
-
+      if(!(this.isActive[programme_code] && this.isActive[country_code])){
+        this.isActive[programme_code] = true;
+        this.isActive[country_code] = true;
+      }
+        else {
+        this.isActive[programme_code] = false;
+        }
 
     },
+
+    showProjects(code,country) {
+      if(this.isActive[code] && this.isActive[country]){
+        return true
+      }
+      else
+        return false
+    },
+
 
     toggleContent(e) {
       //remove comment if you want to toggle between elements
@@ -306,6 +362,10 @@ export default Vue.extend({
         target.classList.add('active')
       }
     },
+
+    // watch: {
+    //   'isActive': 'showProjects',
+    // }
   },
 });
 
