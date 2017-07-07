@@ -14,26 +14,23 @@
                <li v-for="programme in beneficiary.programmes"
                    class="programme-item">
                  <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code" @click="getProjects($event)"> {{ programme.programme_name }} </div>
-                   <div v-if="posts"  class="programme-sublist-wrapper">
                   <transition name="fade">
-                      <ul v-if="showProjects(programme.programme_code,beneficiary.id)" class="programme-sublist">
-                          <li> <small key="results.name"  class="programme-sublist-header">{{ programme.sector }}</small></li>
-                           <li v-if="posts" class="programme-sublist-item"
+                   <div v-if="posts"  class="programme-sublist-wrapper">
+                   <small key="results.name"  class="programme-sublist-header">{{ programme.sector }}</small>
+                      <ul class="programme-sublist">
+                       <!--     <li v-if="posts" class="programme-sublist-item"
                               v-for="results of programme.projects.results"
                            >
                               {{ results.name }}
-                           </li>
-                           <li>
-                             <div key="results.name"  class="small muted align-center">
-                              &ndash;
-                              <button type="button" class="btn-link">show 10 more results</button>
-                              &ndash;
-                            </div>
-                          </li>
-
+                           </li> -->
                       </ul>
-                  </transition>
+                      <div class="small muted align-center">
+                              &ndash;
+                              <button @click="showMore($event)" :next="programme.next" type="button" class="btn-link">show 10 more results</button>
+                              &ndash;
+                      </div>
                   </div>
+                  </transition>
                </li>
             </ul>
           </div>
@@ -92,31 +89,21 @@
       margin-left: -2rem;
     }
     }
-  }
 
-  .programme-sublist-item {
-    margin: 1rem 0;
-  }
+    li {
+      margin: 1rem 0;
+    }
 
-  .programme-sublist-item:before {
-    content: "●";
-    margin-right: .5rem;
-    color: #3D90F3;
+    li:before {
+      content: "●";
+      margin-right: .5rem;
+      color: #3D90F3;
+    }
+
   }
 
   .title-wrapper:hover {
     text-decoration: underline;
-  }
-
-  a.programme-sublist-item:hover{
-    &:before {
-
-    text-decoration: none;
-    }
-  }
-
-  a.programme-sublist-item {
-    color: inherit;
   }
 
   .flag {
@@ -258,6 +245,7 @@ export default Vue.extend({
               programme_url: programmes[p].url,
               projectcount: 0,
               projects : [],
+              next : null
             };
 
           this.isActive[p]= false
@@ -304,6 +292,7 @@ export default Vue.extend({
     getProjects(e) {
       let programme_code = e.target.getAttribute('id');
       let country_code = e.target.getAttribute('country');
+      let target = e.target.parentNode.querySelector('.programme-sublist');
 
       axios.get(`/api/projects/?beneficiary=${country_code}&programme=${programme_code}`)
       .then(response => {
@@ -312,7 +301,17 @@ export default Vue.extend({
         for (let d of this.data.beneficiaries){
             for (let b of d.programmes) {
               if(b.programme_code == programme_code )
-                  b.projects = this.posts
+                  {
+                    b.next = this.posts.next
+                    for (let r of this.posts.results){
+                    var node = document.createElement("LI");                 // Create a <li> node
+                    var textnode = document.createTextNode(r.name);         // Create a text node
+                    node.appendChild(textnode);                              // Append the text to <li>
+                    target.appendChild(node);
+
+                    }
+
+                  }
              }
         }
 
@@ -340,6 +339,28 @@ export default Vue.extend({
     },
 
 
+    showMore(e) {
+      let target = e.target.getAttribute('next');
+      let target2 = e.target.parentNode.parentNode.parentNode.querySelector('.programme-sublist');
+      console.log(target2)
+       axios.get(""+target+"").then(response => {
+        this.posts = response.data
+        for (let r of this.posts.results){
+            var node = document.createElement("LI");
+            var textnode = document.createTextNode(r.name);
+            node.appendChild(textnode);
+            target2.appendChild(node);
+          }
+        e.target.setAttribute('next',this.posts.next)
+
+
+      })
+      .catch(e => {
+        this.errors.push(e)
+      });
+    },
+
+
     toggleContent(e) {
       //remove comment if you want to toggle between elements
 
@@ -362,10 +383,6 @@ export default Vue.extend({
         target.classList.add('active')
       }
     },
-
-    // watch: {
-    //   'isActive': 'showProjects',
-    // }
   },
 });
 
