@@ -14,7 +14,6 @@
                <li v-for="programme in beneficiary.programmes"
                    class="programme-item">
                  <div class="programme-item-header" :country="beneficiary.id" :id="programme.programme_code" @click="getProjects($event)"> {{ programme.programme_name }} </div>
-                  <transition name="fade">
                    <div v-if="posts"  class="programme-sublist-wrapper">
                    <small key="results.name"  class="programme-sublist-header">{{ programme.sector }}</small>
                       <ul class="programme-sublist">
@@ -24,13 +23,12 @@
                               {{ results.name }}
                            </li> -->
                       </ul>
-                      <div class="small muted align-center">
+                      <div class="show-more small muted align-center">
                               &ndash;
                               <button @click="showMore($event)" :next="programme.next" type="button" class="btn-link">show 10 more results</button>
                               &ndash;
                       </div>
                   </div>
-                  </transition>
                </li>
             </ul>
           </div>
@@ -56,40 +54,9 @@
     color: #444;
   }
 
-
-
-    &.fade-enter-active,
-    &.fade-leave-active {
-      transition: opacity .5s;
-    }
-
-    &.fade-enter,
-    &.fade-leave-to {
-      opacity: 0;
-    }
-    &.fade-enter-to,
-    &.fade-leave {
-      opacity: 1;
-    }
-
-  // .programme-sublist-wrapper {
-  //   display: none;
-  // }
-
-  // li.active .programme-sublist-wrapper  {
-  //   display: block;
-  // }
-
   .programme-sublist {
     padding-left: 0;
     margin-left: 2rem;
-    li {
-    &:first-of-type,
-    &:last-of-type {
-      margin-left: -2rem;
-    }
-    }
-
     li {
       margin: 1rem 0;
     }
@@ -174,6 +141,16 @@
     width: 24px;
     margin-right: .5rem;
   }
+
+  div.small,
+  .programme-sublist-header {
+    display: none;
+  }
+  .programme-item.active small,
+  .programme-item.active div.small {
+    display: block;
+  }
+
 }
 </style>
 
@@ -211,10 +188,6 @@ export default Vue.extend({
     },
 
 
-    isActive() {
-      let active = {};
-      return active
-    },
 
     data() {
       const dataset = this.filter(this.dataset);
@@ -248,8 +221,7 @@ export default Vue.extend({
               next : null
             };
 
-          this.isActive[p]= false
-          // this.isActive.push(beneficiary.programme);
+
           programme.projectcount += projectcount;
           beneficiary._projectcount += projectcount;
           totalcount += projectcount;
@@ -268,7 +240,6 @@ export default Vue.extend({
                 programmes: [],
               };
         let benef = beneficiary.id
-        this.isActive[benef] = false;
 
         out.beneficiaries.push(beneficiary);
         for (const p in programmes) {
@@ -293,10 +264,18 @@ export default Vue.extend({
       let programme_code = e.target.getAttribute('id');
       let country_code = e.target.getAttribute('country');
       let target = e.target.parentNode.querySelector('.programme-sublist');
+      let test = e.target.parentNode.querySelectorAll('.programme-sublist li')
+      let active_item = e.target.parentNode;
+      if(active_item.classList.contains('active')){
+        active_item.classList.remove('active')
+      }
+      else{
+        active_item.classList.add('active')
+      }
 
+     if(test.length == 0){
       axios.get(`/api/projects/?beneficiary=${country_code}&programme=${programme_code}`)
       .then(response => {
-        // JSON responses are automatically parsed.
         this.posts = response.data
         for (let d of this.data.beneficiaries){
             for (let b of d.programmes) {
@@ -304,13 +283,11 @@ export default Vue.extend({
                   {
                     b.next = this.posts.next
                     for (let r of this.posts.results){
-                    var node = document.createElement("LI");                 // Create a <li> node
-                    var textnode = document.createTextNode(r.name);         // Create a text node
-                    node.appendChild(textnode);                              // Append the text to <li>
+                    var node = document.createElement("LI");
+                    var textnode = document.createTextNode(r.name);
+                    node.appendChild(textnode);
                     target.appendChild(node);
-
                     }
-
                   }
              }
         }
@@ -320,44 +297,42 @@ export default Vue.extend({
         this.errors.push(e)
       });
 
-      if(!(this.isActive[programme_code] && this.isActive[country_code])){
-        this.isActive[programme_code] = true;
-        this.isActive[country_code] = true;
       }
-        else {
-        this.isActive[programme_code] = false;
-        }
+
+      else {
+          test.forEach(function(item, i){
+            target.removeChild(item)
+          });
+
+
+      }
 
     },
-
-    showProjects(code,country) {
-      if(this.isActive[code] && this.isActive[country]){
-        return true
-      }
-      else
-        return false
-    },
-
 
     showMore(e) {
-      let target = e.target.getAttribute('next');
-      let target2 = e.target.parentNode.parentNode.parentNode.querySelector('.programme-sublist');
-      console.log(target2)
-       axios.get(""+target+"").then(response => {
+      let next = e.target.getAttribute('next');
+      let target = e.target.parentNode.parentNode.parentNode.querySelector('.programme-sublist');
+      let nextNode = target.parentNode.querySelector('.show-more')
+      if(this.posts.next){
+      axios.get(""+next+"").then(response => {
         this.posts = response.data
         for (let r of this.posts.results){
             var node = document.createElement("LI");
             var textnode = document.createTextNode(r.name);
             node.appendChild(textnode);
-            target2.appendChild(node);
+            target.appendChild(node);
           }
-        e.target.setAttribute('next',this.posts.next)
-
-
+          e.target.setAttribute('next',this.posts.next)
+          if(this.posts.next==null){
+            target.parentNode.removeChild(nextNode);
+          }
       })
-      .catch(e => {
-        this.errors.push(e)
-      });
+        .catch(e => {
+          this.errors.push(e)
+        });
+      }
+
+
     },
 
 
