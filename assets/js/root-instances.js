@@ -8,9 +8,12 @@ import {default as Root} from './components/Root';
 import * as components from './components';
 
 
-const Base = Root.extend({
+export const Base = Root.extend({
+  name: 'Base',
+
   components: {
     globalfilters: components.GlobalFilters,
+    siteheader: components.Header,
   },
 });
 

@@ -2,7 +2,7 @@
 
 require("../css/main.css");
 
-require("../js/header.js");
+// require("../js/header.js");
 
 // register polyfills
 import './lib/polyfills';

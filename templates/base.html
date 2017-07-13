@@ -9,7 +9,9 @@
   {% render_bundle 'styles' 'css' %}
 </head>
 <body>
+<div class="content-wrapper">
   <header class="header">
+  <siteheader></siteheader>
     <div class="container">
       <div class="header-inner">
 
@@ -71,6 +73,7 @@
         </div>
       </div>
   </footer>
+<div>
   {% render_bundle 'scripts' 'js' %}
 {% block finally %}
 {% endblock %}
