@@ -25,3 +25,6 @@ export {default as Sidebar} from './Sidebar';
 export {default as News} from './News';
 
 export {default as Projects} from './Projects'
+
+export {default as PartnersResults} from './PartnersResults'
+
