@@ -11,16 +11,6 @@
 
 <style lang="less">
 .results-viz {
-    svg rect:first-of-type {
-        color: #fff;
-        fill: #aaa;
-    }
-
-    svg rect:nth-of-type(2) {
-        color: #fff;
-        stroke: transparent;
-        fill: rgb(10, 160, 70);
-    }
 
     img {
         display: block;
@@ -40,21 +30,23 @@ import * as d3 from 'd3';
 
 import BaseMixin from './mixins/Base';
 import ChartMixin from './mixins/Chart';
-import WithSectors from './mixins/WithSectors';
 
 
 export default Vue.extend({
   mixins: [
-    BaseMixin, ChartMixin,WithSectors
+    BaseMixin, ChartMixin
   ],
 
+  data(){
+    return {
+        total : 100,
+        percentage : 50,
+    }
+  },
 
   computed: {
     data() {
-    const total = 100,
-               percent = 50;
-
-      const out = [total, percent]
+      const out = [this.total, this.percentage]
       return out;
     },
 
@@ -64,6 +56,7 @@ export default Vue.extend({
     renderChart() {
       const $this = this,
             chart = this.chart;
+        console.log(this.data)
 
     const y = 14;
     const x = d3.scaleLinear()
@@ -82,7 +75,14 @@ export default Vue.extend({
         .transition()
         .attr("width", x)
         .attr("height", y)
+        .attr('fill', function(d) {
+            if(d==$this.data[0])
+                return "#aaa"
+            else
+                return 'rgb(10, 160, 70)'
+        })
     },
+
 
   },
 });
