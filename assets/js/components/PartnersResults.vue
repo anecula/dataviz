@@ -16,8 +16,8 @@
         display: block;
         position: relative;
         margin-top: -46px;
+        width: 100.5%;
     }
-
 }
 
 
@@ -40,7 +40,7 @@ export default Vue.extend({
   data(){
     return {
         total : 100,
-        percentage : 50,
+        percentage : 35,
     }
   },
 
@@ -72,9 +72,9 @@ export default Vue.extend({
     chart.selectAll("rect")
         .data($this.data)
         .enter().append("rect")
+        .attr("height", y)
         .transition()
         .attr("width", x)
-        .attr("height", y)
         .attr('fill', function(d) {
             if(d==$this.data[0])
                 return "#aaa"
