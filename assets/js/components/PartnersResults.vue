@@ -1,9 +1,11 @@
 <template>
 <div class="results-viz">
-  <svg viewBox="0 0 100 14"  preserveAspectRatio="none">
+<div class="svg-container">
+  <svg viewBox="0 0 90 18"  preserveAspectRatio="none">
     <g class="chart">
     </g>
   </svg>
+</div>
   <img src="/assets/imgs/cubes.svg">
 </div>
 </template>
@@ -15,8 +17,17 @@
     img {
         display: block;
         position: relative;
-        margin-top: -46px;
+        margin-top: -51px;
         width: 100.5%;
+        // opacity: .5;
+    }
+
+    .svg-container {
+        width: 100%;
+        text-align: center;
+        svg {
+            width: 70%;
+        }
     }
 }
 
@@ -39,8 +50,8 @@ export default Vue.extend({
 
   data(){
     return {
-        total : 100,
-        percentage : 35,
+        total : 50,
+        percentage : 20,
     }
   },
 
@@ -56,7 +67,6 @@ export default Vue.extend({
     renderChart() {
       const $this = this,
             chart = this.chart;
-        console.log(this.data)
 
     const y = 14;
     const x = d3.scaleLinear()
