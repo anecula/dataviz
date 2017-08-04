@@ -1,12 +1,12 @@
 <template>
 <div class="results-viz">
 <div class="svg-container">
-  <svg viewBox="0 0 90 18"  preserveAspectRatio="none">
+  <svg viewBox="0 0 100 14"  preserveAspectRatio="none">
     <g class="chart">
     </g>
   </svg>
-</div>
   <img src="/assets/imgs/cubes.svg">
+</div>
 </div>
 </template>
 
@@ -15,18 +15,22 @@
 .results-viz {
 
     img {
-        display: block;
-        position: relative;
-        margin-top: -51px;
-        width: 100.5%;
-        // opacity: .5;
+      position: absolute;
+      top: 15px;
+      width: 202px;
+      left: 59px;
+      // opacity: 0.5;
     }
 
     .svg-container {
-        width: 100%;
-        text-align: center;
+          width: 100%;
+          text-align: center;
+          max-width: 200px;
+          margin: auto;
+          height: 33px;
         svg {
-            width: 70%;
+          height: 100%;
+          width: 100%;
         }
     }
 }
@@ -50,14 +54,25 @@ export default Vue.extend({
 
   data(){
     return {
-        total : 50,
-        percentage : 20,
+        total : 100,
+        percentage : 21,
     }
   },
 
   computed: {
     data() {
-      const out = [this.total, this.percentage]
+      const test = parseInt(this.percentage.toString().substring(1,2));
+      let percentage = this.percentage;
+
+      if(test != 0 && (6-test > 0)){
+        percentage += 6-test
+      }
+      else if(test == 0 && this.percentage % 4 != 0 ) {
+        percentage += 2.5
+        console.log(percentage)
+      }
+
+      const out = [this.total, percentage]
       return out;
     },
 
