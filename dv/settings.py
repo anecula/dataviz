@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'dv',
     'ckeditor',
+    'corsheaders',
 ]
 
 if not DEBUG:
@@ -64,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    'dv.middleware.CORSMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -178,5 +179,12 @@ HAYSTACK_CONNECTIONS = {
         'URL': 'http://localhost:8983/solr/eeagrants'
     },
 }
+
+CORS_ORIGIN_WHITELIST = (
+    'eeagrants.org',
+    'data.eeagrants.org',
+    'eeagrants.edw.ro',
+    'eea-norway-grants.github.io',
+)
 
 from .localsettings import *
