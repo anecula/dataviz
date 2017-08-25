@@ -54,12 +54,9 @@
   </div>
 
   <slot name="after-map">
-    <mobile-tooltip :data="data" v-if="rendered">
-      <slot>test</slot>
-
+    <mobile-tooltip :data="clickedData" v-if="rendered && clicked">
     </mobile-tooltip>
   </slot>
-
 
 </div>
 </template>
@@ -181,6 +178,10 @@ export default Chart.extend({
       region_colour_default: "none",
 
       zoomed_nuts_level: 3,
+
+      clickedData : null,
+
+      clicked : null,
 
       all_nuts_levels: [0, 3],
       // restrict rendering to donors and beneficiaries
@@ -423,7 +424,6 @@ export default Chart.extend({
             self.raise()
             // we also need to raise the parent container
             d3.select(this.parentNode).raise()
-
             $this.tip.show.call(this, d, i);
           } else {
             $this.tip.hide.call(this, d, i);
@@ -449,6 +449,9 @@ export default Chart.extend({
           if (d.id.length == 2) {
             $this.toggleBeneficiary(d)
           }
+          $this.selectRegion(d)
+          $this.clicked =this
+
         })
         .on("mouseenter", doMouse(true))
         .on("mouseleave", doMouse(false))
@@ -525,11 +528,26 @@ export default Chart.extend({
       this._prev_beneficiary = newid
     },
 
+    handleFilter() {
+      // this.render();
+      var e = document.createEvent('UIEvents');
+      e.initUIEvent('click', true);
+      try {
+        if(this.rendered)
+          this.clicked.dispatchEvent(e);
+      } catch(e) {}
+    },
+
     handleFilterBeneficiary(v) {
       if (v) this.map.renderRegions(v, this.zoomed_nuts_level)
       this.tip.hide()
       this.render()
     },
+
+    selectRegion(d){
+      this.clickedData = d;
+    },
+
   },
 });
 </script>
