@@ -53,6 +53,14 @@
     </ul>
   </div>
 
+  <slot name="after-map">
+    <mobile-tooltip :data="data" v-if="rendered">
+      <slot>test</slot>
+
+    </mobile-tooltip>
+  </slot>
+
+
 </div>
 </template>
 
@@ -142,7 +150,7 @@ import WithCountriesMixin from './mixins/WithCountries';
 import WithFMsMixin from './mixins/WithFMs';
 import WithTooltipMixin from './mixins/WithTooltip';
 import WithNUTSMixin from './mixins/WithNUTS';
-
+import MobileTooltip from './includes/MobileTooltip';
 
 export default Chart.extend({
   type: "allocation",
@@ -153,6 +161,8 @@ export default Chart.extend({
     WithTooltipMixin,
     WithNUTSMixin,
   ],
+
+  components: {'mobile-tooltip': MobileTooltip},
 
   props: {
     // this is a "template" with the string 'XX' meant to be replaced
