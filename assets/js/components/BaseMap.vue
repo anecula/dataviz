@@ -54,7 +54,7 @@
   </div>
 
   <slot name="after-map">
-    <mobile-tooltip :data="clickedData" v-if="rendered && clicked">
+    <mobile-tooltip :data="clickedData" v-if="rendered && clicked && filters.beneficiary">
     </mobile-tooltip>
   </slot>
 
@@ -533,7 +533,6 @@ export default Chart.extend({
       var e = document.createEvent('UIEvents');
       e.initUIEvent('click', true);
       try {
-        if(this.rendered)
           this.clicked.dispatchEvent(e);
       } catch(e) {}
     },
@@ -547,7 +546,6 @@ export default Chart.extend({
     selectRegion(d){
       this.clickedData = d;
     },
-
   },
 });
 </script>

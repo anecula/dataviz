@@ -28,6 +28,7 @@
 import Vue from 'vue';
 
 import ComponentMixin from '../mixins/Component.js'
+import {FILTERS} from '../../globals.js'
 
 
 export default Vue.extend({
@@ -35,6 +36,7 @@ export default Vue.extend({
 
   props: {
     data: Object,
+    filters: FILTERS,
   },
 
   computed: {
@@ -44,5 +46,7 @@ export default Vue.extend({
   methods: {
 
   },
+
+
 })
 </script>
