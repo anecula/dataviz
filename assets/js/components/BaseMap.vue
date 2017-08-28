@@ -53,8 +53,8 @@
     </ul>
   </div>
 
-  <slot name="after-map">
-    <mobile-tooltip :data="clickedData" v-if="rendered && clicked && filters.beneficiary">
+  <slot v-if="rendered && clickedData && clicked  && filters.beneficiary && mobile" name="after-map">
+    <mobile-tooltip :data="clickedData">
     </mobile-tooltip>
   </slot>
 
@@ -449,8 +449,13 @@ export default Chart.extend({
           if (d.id.length == 2) {
             $this.toggleBeneficiary(d)
           }
-          $this.selectRegion(d)
-          $this.clicked =this
+          // part 1: show mobile tooltip for region
+          else{
+            if($this.mobile){
+              $this.clickedData = d
+              $this.clicked = this
+            }
+          }
 
         })
         .on("mouseenter", doMouse(true))
@@ -528,24 +533,37 @@ export default Chart.extend({
       this._prev_beneficiary = newid
     },
 
-    handleFilter() {
-      // this.render();
-      var e = document.createEvent('UIEvents');
-      e.initUIEvent('click', true);
-      try {
-          this.clicked.dispatchEvent(e);
-      } catch(e) {}
-    },
-
     handleFilterBeneficiary(v) {
       if (v) this.map.renderRegions(v, this.zoomed_nuts_level)
+      // part 2:show mobile tooltip for beneficiary
       this.tip.hide()
       this.render()
+      if(this.mobile){
+        try {
+          this.clicked = d3.select('.viz.map .'+v+'');
+          this.clickedData = this.clicked.datum();
+
+        } catch(e) {
+          console.log(e);
+        }
+      }
     },
 
-    selectRegion(d){
-      this.clickedData = d;
+    handleFilter(v){
+      const $this = this;
+      this.render()
+      if(this.mobile){
+        try {
+          let clicked = d3.select($this.clicked);
+          this.clickedData = clicked.datum();
+
+        } catch(e) {
+          console.log(e);
+        }
+      }
     },
+
+
   },
 });
 </script>

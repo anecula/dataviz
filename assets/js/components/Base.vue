@@ -7,8 +7,10 @@
 import Vue from 'vue';
 import * as d3 from 'd3';
 import {FILTERS, Q} from '../globals.js'
+import VueViewports from 'vue-viewports'
 
 import BaseMixin from './mixins/Base'
+Vue.use(VueViewports, { 800: 'desktop'})
 
 export default Vue.extend({
   mixins: [BaseMixin],
@@ -22,16 +24,24 @@ export default Vue.extend({
     initial: [Object, Array],
   },
 
+  updated() {
+    if(this.$currentViewport.label != 'desktop')
+      this.mobile = true
+    else
+      this.mobile = false
+  },
+
   data() {
     return {
       filters: FILTERS,
-
       // what the dataset can be filtered on.
       // default to filters applicable to all scenarios.
       filter_by: [
         "fm", "beneficiary",
         "sector", "area",
       ],
+
+      mobile: false,
 
       // aggregation columns.
       aggregate_by: [],
