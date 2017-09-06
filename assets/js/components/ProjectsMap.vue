@@ -164,7 +164,7 @@ const RegionDetails = {
     getprojectcount(d) { return this.self.getprojectcount(d) },
     getradius(txt) { return this.self.getradius(txt) },
     resetMap(){
-      this.self.handleFilterBeneficiary(null, null);
+      this.self.filters.beneficiary = null;
     },
   },
 
@@ -326,15 +326,15 @@ export default BaseMap.extend({
       if (d.id.length != 2)
         this.localfilters.region = d.id
 
-
-     
-
     },
 
 
     getBubbles(parentid) {
       const main = !parentid
       if (main) parentid = ""
+
+        if(parentid==69)
+          parentid = ""
 
       const level = main ? 0
                          : parentid.length == 2 ? 2 // we skip level1
@@ -353,11 +353,13 @@ export default BaseMap.extend({
 
       const _classes = [`level${level}`]
       if (!main) _classes.push(parentid.substr(0, 2))
+      _classes.push(parentid)
 
       const parent = this.projects
         .append("g")
         .attr("opacity", 0)
         .attr("class", _classes.join(" "))
+        .attr("level", level)
 
       const _c = d => this.map.geodetails[d.id].centroid
 
@@ -514,14 +516,11 @@ export default BaseMap.extend({
       const dataset = d3.values(aggregated)
       this._renderRegionData(region, dataset, t)
 
-
-// console.log(this.current_region)
       this.region_data = aggregated
     },
 
     _mkLevelData(parentid, data) {
 
-// console.log(data)
 
       // re-aggregate the data to compute per-level stuff
       const out = {}
@@ -599,12 +598,30 @@ export default BaseMap.extend({
 
     handleFilterBeneficiary(newid, oldid) {
       this.$super.handleFilterBeneficiary(newid, oldid);
-
+      const $this = this
       // hide the big circles, they're distractive
       const t = this.getTransition();
       this.chart.selectAll('g.states > g.beneficiary > g')
-        .transition(t)
+        // .transition(t)
         .attr("opacity", Number(!newid));
+
+        if(newid == null) {
+          this.chart.selectAll('g.regions > g')
+          .style('display', function(){
+            if(!this.classList.contains('level0'))
+              return 'none'
+           })
+          this.current_region = null;
+        }
+        else{
+          if(newid != oldid) {
+            this.chart.selectAll('g.projects > g')
+            .style('opacity', function(){
+              if(this.classList.contains('level0'))
+                return '0'
+             })
+          }
+        }
     },
 
     handleFilterRegion(v) {
@@ -616,6 +633,36 @@ export default BaseMap.extend({
       if (v && level == 3) return
       this.render()
     },
+
+    handleFilterSector(){
+      this.render()
+    },
+
   },
+  watch: {
+    'current_region': {
+      deep: true,
+      handler(){
+        this.render()
+        const $this = this;
+        const t = this.getTransition();
+        if(!this.current_region){
+        this.chart.selectAll('g.projects > g')
+          .style('opacity', function(){
+            if(!this.classList.contains('level0'))
+              return '0'
+          })
+        }
+        else {
+          const region = this.chart.select(`g.projects > g.${$this.current_region}`)
+          .transition(50)
+          .style('opacity', function(){
+              return '1'
+          })
+        }
+
+      }
+    }
+  }
 });
 </script>
